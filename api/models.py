@@ -23,7 +23,7 @@ class UserCreate(UserBase):
 class UserUpdate(UserBase):
     """Format used when updating user entry"""
     username: str
-    password: str
+    password: str | None = None
 
 class UserLogin(UserBase):
     """Format used when tryng to update user"""
