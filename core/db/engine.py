@@ -21,3 +21,6 @@ def get_db():
         db.close()
 
 SessionDep = Annotated[Session, Depends(get_db)]
+
+def init_superadmin():
+    # TODO: perfom admin crud and print new admin password
