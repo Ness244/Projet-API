@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-import config
+from api.main import api
 
-
-app = FastAPI(title = config.APP_NAME)
+app = FastAPI()
+app.include_router(api, prefix='/api')
