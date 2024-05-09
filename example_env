@@ -1,0 +1,5 @@
+# RENAME THIS TO .env
+DATABASE_NAME="projetapi"
+DATABASE_USER="root"
+DATABASE_PASSWORD="ghy"
+DATABASE_HOST="localhost"

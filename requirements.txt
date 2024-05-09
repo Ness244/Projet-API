@@ -1,0 +1,14 @@
+# API & Server
+fastapi==0.111.0
+fastapi-cli==0.0.3
+uvicorn==0.29.0
+# JWT
+python-jose==3.3.0
+# PASSWORD HASH
+passlib==1.7.4
+# DB
+mysql-connector-python==8.4.0
+SQLAlchemy==2.0.29
+# Data Model
+pydantic==2.7.1
+pydantic_core==2.18.2
