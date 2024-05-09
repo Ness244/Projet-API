@@ -51,7 +51,7 @@ def update_user(session: SessionDep, user_in: UserUpdate):
             status_code = 404,
             detail      = f"User with username {user_in.username} is not in database"
         )
-    count = 0
+    count = -1 # Username will be replaced by the same username
     for field, value in user_in:
         if value:
             setattr(user,field,value)
@@ -67,7 +67,7 @@ def update_user(session: SessionDep, user_in: UserUpdate):
 @router.delete("")
 def delete_user(session: SessionDep, user_in: UserDelete):
     user_obj = session.query(User).filter(User.username == user_in.username).first()
-    if user_obj:
+    if not user_obj:
         raise HTTPException(
             status_code = 404,
             detail      = f"User with username {user_in.username} is not in database"
@@ -77,7 +77,8 @@ def delete_user(session: SessionDep, user_in: UserDelete):
             status_code = 403,
             detail      = f"Forbidden : cannot delete a super user, demote it first"
         )
-    
+    session.query(User).filter(User.id == user_obj.id).delete() 
+    session.commit()
     return JSONResponse(
         status_code = 200, 
         content     = {"message": f"User {user_in.username} deleted successfully."}
