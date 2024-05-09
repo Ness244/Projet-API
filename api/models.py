@@ -1,10 +1,15 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from datetime import datetime
 # FastAPI DATA models here
 
 
 class UserBase(BaseModel):
     """Base User format, closest to DB Model"""
+    
+    # The following makes sure we do not add unwanted field such as 
+    # password when performing object conversion
+    model_config = ConfigDict(extra='ignore')
+    
     full_name       : str | None = None
     username        : str # ID
     email           : str | None = None
@@ -13,6 +18,10 @@ class UserBase(BaseModel):
 
 class UserCreate(UserBase):
     """Format used when creating new user entry"""
+    username: str
+    password: str
+class UserUpdate(UserBase):
+    """Format used when updating user entry"""
     username: str
     password: str
 
@@ -25,9 +34,10 @@ class UserDelete(BaseModel):
     """Format used when deleting user"""
     username: str
 
-class UserIn(UserBase):
-    """Format used querying user entries"""
-    ...
+class UsersOut(BaseModel):
+    """Format used when sending back users"""
+    data: list[UserBase]
+    count: int
 
 class SyslogBase(BaseModel):
     """Base syslog format, closest to DB model"""
