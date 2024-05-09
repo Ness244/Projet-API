@@ -1,7 +1,5 @@
 from fastapi import APIRouter
 from fastapi.responses import JSONResponse
-from pydantic.type_adapter import TypeAdapter
-from typing import List
 from api.models import SyslogIn, SyslogCreate, SyslogsOut, SyslogBase
 from core.db.engine import SessionDep
 from core.db.models import Syslog
@@ -28,6 +26,7 @@ def create_syslog(session: SessionDep, syslog_in: SyslogCreate):
     session.add(syslog_obj)
     session.commit()
     session.refresh(syslog_obj)
+
     return JSONResponse(status_code=201, content={"message": "Syslog entry created successfully", "syslog_id": syslog_obj.id})
 
 
