@@ -1,14 +1,18 @@
-from fastapi import APIRouter
+from typing import Annotated
+
+from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
 from api.models import SyslogIn, SyslogCreate, SyslogsOut, SyslogBase
 from core.db.engine import SessionDep
 from core.db.models import Syslog
+from core.security import oauth2_scheme, validate_token, get_current_user
 
 router = APIRouter()
 
 
 @router.get("", response_model=SyslogsOut)
-def get_syslog(session: SessionDep, syslog_in: SyslogIn):
+def get_syslog(session: SessionDep, syslog_in: SyslogIn, token: Annotated[str, Depends(oauth2_scheme)]):
+    validate_token(token)
     # We add the filters only if they are not null
     filters = {k: v for k, v in syslog_in.model_dump().items() if v is not None}
     results = session.query(Syslog).filter_by(**filters).all()
@@ -21,7 +25,10 @@ def get_syslog(session: SessionDep, syslog_in: SyslogIn):
     )
 
 @router.post("")
-def create_syslog(session: SessionDep, syslog_in: SyslogCreate):
+def create_syslog(session: SessionDep, syslog_in: SyslogCreate, token: Annotated[str, Depends(oauth2_scheme)]):
+    validate_token(token)
+    current_user = get_current_user(token)
+    syslog_in.msg += f" - created by {current_user}"
     syslog_obj = Syslog(**syslog_in.model_dump())
     session.add(syslog_obj)
     session.commit()
@@ -31,7 +38,8 @@ def create_syslog(session: SessionDep, syslog_in: SyslogCreate):
 
 
 @router.delete("")
-def delete_syslog(session: SessionDep, syslog_in: SyslogIn):
+def delete_syslog(session: SessionDep, syslog_in: SyslogIn, token: Annotated[str, Depends(oauth2_scheme)]):
+    validate_token(token)
     # We add the filters only if they are not null
     filters = {k: v for k, v in syslog_in.model_dump().items() if v is not None}
     results = session.query(Syslog).filter_by(**filters).delete()
