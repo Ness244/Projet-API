@@ -18,7 +18,6 @@ services:
     volumes :
       - mysql_data:/var/lib/mysql
     environment:
-      DATABASE_HOST: "localhost"
       DATABASE_NAME: "projetapi"
       DATABASE_PASSWORD: "ghy"
       DATABASE_USER: "root"
