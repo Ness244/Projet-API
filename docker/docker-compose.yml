@@ -6,6 +6,9 @@ services:
     command: python main.py
     ports:
       - "8000:80"
+
+    networks:
+      - nep
     depends_on :
       - db  
     volumes:
@@ -18,12 +21,17 @@ services:
     volumes :
       - mysql_data:/var/lib/mysql
     environment:
-      DATABASE_HOST: "localhost"
       DATABASE_NAME: "projetapi"
       DATABASE_PASSWORD: "ghy"
       DATABASE_USER: "root"
     ports:
       - "3306:3306"
+    networks:
+      - nep
+
+  networks:
+    nep:
+      driver: bridge
 
 
 volumes:
