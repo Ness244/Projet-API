@@ -5,6 +5,10 @@ RUN useradd --create-home --home-dir /home/python --uid 1000 --gid 1000 python
 
 WORKDIR /home/python
 
+RUN apt update && apt install -y \
+    python3-dev \
+    libmysqlclient-dev
+
 COPY requirements.txt .
 
 RUN pip install -r requirements.txt
