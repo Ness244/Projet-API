@@ -2,10 +2,13 @@ from typing import Annotated
 
 from fastapi import APIRouter, HTTPException, Depends
 from fastapi.responses import JSONResponse
+from sqlalchemy.orm import Session
+
 from api.models import UserCreate, UserDelete, UserLogin, UserUpdate, UserBase, UsersOut
-from core.db.engine import SessionDep
+from core.db.engine import SessionDep, get_db
 from core.db.models import User
-from core.security import get_password_hash, generate_access_token, verify_password, oauth2_scheme, validate_token
+from core.security import get_password_hash, generate_access_token, verify_password, oauth2_scheme, validate_token, \
+    get_current_user
 
 router = APIRouter()
 
@@ -13,6 +16,7 @@ router = APIRouter()
 @router.get("", response_model=UsersOut)
 def get_users(session: SessionDep, token: Annotated[str, Depends(oauth2_scheme)]):
     validate_token(token)
+
     results = session.query(User).all()
     
     # We have to perform conversion of db model to data model
@@ -46,6 +50,14 @@ def create_user(session: SessionDep, user_in: UserCreate):
 @router.patch("")
 def update_user(session: SessionDep, user_in: UserUpdate, token: Annotated[str, Depends(oauth2_scheme)]):
     validate_token(token)
+    user_name = get_current_user(token)
+    user = session.query(User).filter(User.username == user_name).first()
+    if not user:
+        raise HTTPException(status_code=403, detail="Access denied")
+
+    if not user.is_superuser:
+        raise HTTPException(status_code=403, detail="Forbidden : you are not a super user")
+
     if user_in.password:
         user_in.password = get_password_hash(user_in.password)
     
@@ -71,6 +83,14 @@ def update_user(session: SessionDep, user_in: UserUpdate, token: Annotated[str, 
 @router.delete("")
 def delete_user(session: SessionDep, user_in: UserDelete, token: Annotated[str, Depends(oauth2_scheme)]):
     validate_token(token)
+    user_name = get_current_user(token)
+    user = session.query(User).filter(User.username == user_name).first()
+    if not user:
+        raise HTTPException(status_code=403, detail="Access denied")
+
+    if not user.is_superuser:
+        raise HTTPException(status_code=403, detail="Forbidden : you are not a super user")
+
     user_obj = session.query(User).filter(User.username == user_in.username).first()
     if not user_obj:
         raise HTTPException(
