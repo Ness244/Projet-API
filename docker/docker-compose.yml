@@ -21,9 +21,9 @@ services:
     volumes :
       - mysql_data:/var/lib/mysql
     environment:
-      DATABASE_NAME: "projetapi"
-      DATABASE_PASSWORD: "ghy"
-      DATABASE_USER: "root"
+      MYSQL_DATABASE: "projetapi"
+      MYSQL_ROOT_PASSWORD: "ghy"
+      MYSQL_USER: "root"
     ports:
       - "3306:3306"
     networks:
