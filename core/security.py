@@ -1,3 +1,7 @@
+import random
+import string
+
+
 from datetime import datetime, timedelta
 from typing import Any
 
@@ -10,8 +14,11 @@ from passlib.context import CryptContext
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
+def generate_random_secret_key(size: int):
+    return ''.join(random.choices(string.hexdigits, k=size))
+
 ALGORITHM = "HS256"
-SECRET_KEY = "abc"
+SECRET_KEY = generate_random_secret_key(32)
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     return pwd_context.verify(plain_password, hashed_password)
