@@ -11,12 +11,15 @@ router = APIRouter()
 
 
 @router.get("", response_model=SyslogsOut)
-def get_syslog(session: SessionDep, syslog_in: SyslogIn, token: Annotated[str, Depends(oauth2_scheme)]):
+def get_syslog(session: SessionDep, token: Annotated[str, Depends(oauth2_scheme)], syslog_in: SyslogIn = None ):
     validate_token(token)
     # We add the filters only if they are not null
-    filters = {k: v for k, v in syslog_in.model_dump().items() if v is not None}
-    results = session.query(Syslog).filter_by(**filters).all()
+    if  syslog_in:
+        filters = {k: v for k, v in syslog_in.model_dump().items() if v is not None}
+        results = session.query(Syslog).filter_by(**filters).all()
+    else:
 
+        results = session.query(Syslog).all()
     # We have to perfom conversion of db model to data model
     data_payload =  [ SyslogBase.model_validate(syslog_obj.__dict__) for syslog_obj in results ]
     return SyslogsOut(
