@@ -1,5 +1,8 @@
 from fastapi import FastAPI
-import config
+from api.main import api
+from core.db.engine import init_superadmin
 
+app = FastAPI()
+app.include_router(api, prefix='/api')
 
-app = FastAPI(title = config.APP_NAME)
+init_superadmin()
