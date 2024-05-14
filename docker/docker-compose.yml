@@ -2,43 +2,53 @@ version: '3.8'
 
 services:
   web:
-    build: .
-    command: python main.py
+    user: python
+    build: 
+      context: ..
+      dockerfile: docker/Dockerfile
+    command: sh -c 'pip install --user -r requirements.txt && python -m uvicorn main:app --reload --host 0.0.0.0 --port 5000'
     ports:
-      - "8000:80"
-
+      - "5000:5000"
     networks:
       - nep
     depends_on :
       - db  
     volumes:
-      - .:/home/python
-    
+      - ..:/home/python
+    environment:
+      DATABASE_HOST: "db"
+      DATABASE_USER: "root"
+      DATABASE_NAME: "projetapi"
+      DATABASE_PASSWORD: "ghy"
 
+  ui:
+    image: node:22-alpine
+    user: node
+    command: npm install && npm start
+    ports:
+      - 3000:3000
+    networks:
+      - nep
+    depends_on:
+      - web
+    volumes:
+      - ../ui:/home/node
 
   db:
-    image : mysql:latest
+    image: mysql:latest
     volumes :
       - mysql_data:/var/lib/mysql
     environment:
       MYSQL_DATABASE: "projetapi"
       MYSQL_ROOT_PASSWORD: "ghy"
-      MYSQL_USER: "root"
-    ports:
-      - "3306:3306"
     networks:
       - nep
 
-  networks:
-    nep:
-      driver: bridge
-
+networks:
+  nep:
+    driver: bridge
 
 volumes:
   mysql_data:
     name: nep-mysql-data
-
-  
-
-
 
