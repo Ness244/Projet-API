@@ -1,3 +1,4 @@
+import base64
 from datetime import datetime, timedelta
 from typing import Any
 
@@ -11,7 +12,7 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 ALGORITHM = "HS256"
-SECRET_KEY = "abc"
+SECRET_KEY = "ymUBFkce56xpL.$tim($tRd]eQCV5}6S"
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     return pwd_context.verify(plain_password, hashed_password)
@@ -24,12 +25,12 @@ def generate_access_token(data: str) -> str:
     payload = {"sub": data}
     expire = datetime.utcnow() + timedelta(hours=1)
     payload.update({"exp": expire})
-    token = jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
+    token = jwt.encode(payload, get_secret_key(), algorithm=ALGORITHM)
     return token
 
 def validate_token(token: str) -> None:
     try:
-        jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        jwt.decode(token, get_secret_key(), algorithms=[ALGORITHM])
     except jwt.ExpiredSignatureError:
         raise HTTPException(status_code=401, detail="Token has expired")
     except jwt.JWTError:
@@ -39,7 +40,10 @@ def validate_token(token: str) -> None:
 
 def get_current_user(token: str):
     validate_token(token)
-    payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+    payload = jwt.decode(token, get_secret_key(), algorithms=[ALGORITHM])
     username: str = payload.get("sub")
 
     return username
+
+def get_secret_key():
+    return base64.b64encode(SECRET_KEY.encode()).decode()
