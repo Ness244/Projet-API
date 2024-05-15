@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import styles from './Registration.module.css';
+import api from "./api.js";
 
 const Registration = () => {
   const [username, setUsername] = useState('');
@@ -9,8 +10,9 @@ const Registration = () => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+    console.log("hello");
     try {
-      const response = await axios.post('/api/register', {
+      const response = await axios.post('http://127.0.0.1:5000/api/user', {
         username,
         password,
         email,
@@ -60,8 +62,11 @@ const Registration = () => {
           />
         </label>
         <br />
-        <button type="submit" className={styles.button}>
+        <button type="submit" className={styles.button} on onClick={()=> {
+          window.location.href = '/';
+        }}>
           Register
+        
         </button>
       </form>
       <div>
