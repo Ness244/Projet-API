@@ -22,9 +22,11 @@ services:
       DATABASE_PASSWORD: "ghy"
 
   ui:
-    image: node:22-alpine
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile-node
     user: node
-    command: npm install && npm start
+    command: sh -c 'npm install && npm start'
     ports:
       - 3000:3000
     networks:
@@ -32,7 +34,7 @@ services:
     depends_on:
       - web
     volumes:
-      - ../ui:/home/node
+      - ../ui/api-project/:/home/node
 
   db:
     image: mysql:latest
